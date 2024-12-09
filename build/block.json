@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "create-block/attention-game",
+  "version": "0.1.0",
+  "title": "Attention Game",
+  "category": "widgets",
+  "icon": "smiley",
+  "description": "Example block scaffolded with Create Block tool.",
+  "example": {},
+  "supports": {
+    "html": false
+  },
+  "attributes": {
+    "question": {
+      "type": "string",
+      "default": "What is the capital of France?"
+    },
+    "answers": {
+      "type": "array",
+      "default": [
+        ""
+      ]
+    }
+  },
+  "textdomain": "attention-game",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}
