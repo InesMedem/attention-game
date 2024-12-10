@@ -1,17 +1,10 @@
-/**
- * Retrieves the translation of text.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
- */
+import "./editor.scss";
 import { __ } from "@wordpress/i18n";
 
-/**
- * React hook that is used to mark the block wrapper element.
- * It provides all the necessary props like the class name.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
- */
+//* React hook that is used to mark the block wrapper element.
 import { useBlockProps } from "@wordpress/block-editor";
+import { useState } from "@wordpress/element";
+
 import {
 	TextControl,
 	Flex,
@@ -21,25 +14,11 @@ import {
 	Icon,
 } from "@wordpress/components";
 
-/**
- * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
- * Those files can contain any CSS code that gets applied to the editor.
- *
- * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
- */
-import "./editor.scss";
-
-/**
- * The edit function describes the structure of your block in the context of the
- * editor. This represents what the editor will render when the block is used.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
- *
- * @return {Element} Element to render.
- */
-
 export default function Edit({ attributes, setAttributes }) {
-	const { question, answers } = attributes;
+	const { question, answers, correctAnswerIndex } = attributes;
+
+	// State to track the selected answer
+	const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
 
 	// Update the question attribute
 	const onChangeQuestion = (newQuestion) => {
@@ -63,6 +42,23 @@ export default function Edit({ attributes, setAttributes }) {
 	const onRemoveAnswer = (index) => {
 		const newAnswers = answers.filter((_, i) => i !== index); // Remove the specific answer
 		setAttributes({ answers: newAnswers }); // Save the updated answers
+
+		// If the correct answer is removed, reset correctAnswerIndex if necessary
+		if (correctAnswerIndex === index) {
+			setAttributes({ correctAnswerIndex: null });
+		} else if (correctAnswerIndex > index) {
+			setAttributes({ correctAnswerIndex: correctAnswerIndex - 1 });
+		}
+	};
+
+	// Mark an answer as correct
+	const onMarkCorrect = (index) => {
+		setAttributes({ correctAnswerIndex: index });
+	};
+
+	// Handle answer selection
+	const onSelectAnswer = (index) => {
+		setSelectedAnswerIndex(index);
 	};
 
 	return (
@@ -72,25 +68,59 @@ export default function Edit({ attributes, setAttributes }) {
 				value={question}
 				onChange={onChangeQuestion}
 			/>
+
 			<div className="answers-section">
 				{answers.map((answer, index) => (
 					<div key={index} className="answer-item">
-						<TextControl
-							label={`Answer ${index + 1}:`}
-							value={answer}
-							onChange={(newAnswer) => onChangeAnswer(index, newAnswer)}
-						/>
-						<Button
-							isDestructive
-							onClick={() => onRemoveAnswer(index)}
-							label="Remove Answer"
-							className="remove-answer-button"
-						>
-							Remove
-						</Button>
+						<Flex>
+							<FlexBlock>
+								<TextControl
+									label={`Answer ${index + 1}:`}
+									value={answer}
+									onChange={(newAnswer) => onChangeAnswer(index, newAnswer)}
+								/>
+							</FlexBlock>
+							<FlexItem>
+								<Button
+									isDestructive
+									onClick={() => onRemoveAnswer(index)}
+									label="Remove Answer"
+									className="remove-answer-button"
+								>
+									Remove
+								</Button>
+							</FlexItem>
+							<FlexItem>
+								<Button
+									onClick={() => onMarkCorrect(index)}
+									label="Mark as Correct"
+									className="mark-correct-button"
+								>
+									<Icon
+										icon="star-filled"
+										style={{
+											color: correctAnswerIndex === index ? "gold" : "gray",
+										}}
+									/>
+								</Button>
+								<Button
+									className={`answer-feedback-button ${
+										selectedAnswerIndex === index
+											? correctAnswerIndex === index
+												? "correct"
+												: "incorrect"
+											: ""
+									}`}
+									onClick={() => onSelectAnswer(index)}
+								>
+									{answer || "Answer"}
+								</Button>
+							</FlexItem>
+						</Flex>
 					</div>
 				))}
 			</div>
+
 			<Button isPrimary onClick={onAddAnswer} className="add-answer-button">
 				Add Answer
 			</Button>

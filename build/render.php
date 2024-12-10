@@ -1,17 +1,23 @@
 <?php
-// Access the block's attributes
 $attributes = isset( $block->attributes ) ? $block->attributes : array();
-
-// Check if the 'question' attribute is set and not empty
-if ( isset( $attributes['question'] ) && ! empty( $attributes['question'] ) ) {
-    echo '<p ' . get_block_wrapper_attributes() . '>';
-    // Display the 'question' attribute
-    echo esc_html( $attributes['question'] );
-    echo '</p>';
-} else {
-    // Fallback message if 'question' is not set or is empty
-    echo '<p ' . get_block_wrapper_attributes() . '>';
-    esc_html_e( 'Please enter a question in the block settings.', 'attention-game' );
-    echo '</p>';
-}
 ?>
+
+
+<div <?php echo get_block_wrapper_attributes(); ?> >
+
+<!-- Question -->
+<p>
+	<?php echo esc_html( $attributes['question'] ); ?>
+</p>
+
+<!-- Answers -->
+<?php if ( ! empty( $attributes['answers'] ) ) : ?>
+	<div >
+		<?php foreach ( $attributes['answers'] as $answer ) : ?>
+			<button ><?php echo esc_html( $answer ); ?></button>
+		<?php endforeach; ?>
+	</div>
+<?php endif; ?>
+
+</div>
+
